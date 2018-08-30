@@ -59,21 +59,37 @@ def random_color(src_image):
     return sharp_image
 
 
-def aug_img_func(image, config):
-    if config.train.aug_stragety.flip:
-        image = flip_image(image)
-    if config.train.aug_stragety.random_rotate:
+def normalize(image, b_g_r_mean, b_g_r_std):
+    b_g_r_mean = np.tile(np.array(b_g_r_mean).reshape(1, -1),
+                         (1, image.shape[0] * image.shape[1])).reshape(image.shape)
+    b_g_r_std = np.tile(np.array(b_g_r_std).reshape(1, -1),
+                         (1, image.shape[0] * image.shape[1])).reshape(image.shape)
+    image = np.array(image, dtype=np.float32)
+    image = (image - b_g_r_mean) / b_g_r_std
+    return image
+
+
+def aug_img_func(image, aug_strategy, config):
+    """
+    数据增强
+    :param image:
+    :param aug_strategy:
+    :param config:
+    :return:
+    """
+    if aug_strategy.flip:
+        seed = random.random()
+        if seed > 0.7:
+            image = flip_image(image)
+    if aug_strategy.random_rotate:
         max_angle = config.train.max_rotate_angle
         rotate_angle = random.randint(-max_angle, max_angle)
         image = rotate_angle(image, rotate_angle)
-    if config.train.aug_stragety.random_crop:
+    if aug_strategy.random_crop:
         image = random_crop(image)
-    if config.train.aug_stragety.random_color:
+    if aug_strategy.random_color:
         image = random_color(image)
-    if config.train.aug_stragety.normalize:
-        b_g_r_mean = np.tile(np.array(config.dataset.b_g_r_mean).reshape(1, -1),
-                             (1, image.shape[0] * image.shape[1])).reshape(image.shape)
-        image = np.array(image, dtype=np.float32)
-        image = (image - b_g_r_mean) / 255.0
+    if aug_strategy.normalize:
+        image = normalize(image, config.dataset.b_g_r_mean, config.dataset.b_g_r_std)
     return image
 

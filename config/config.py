@@ -1,6 +1,7 @@
 from easydict import EasyDict as edict
 from config.config_dataset import  *
 import time
+import os
 
 
 config = edict()
@@ -9,7 +10,7 @@ config.root_path = '/home/nyy/tianchi'
 config.exp = '/home/nyy/tianchi/temp'
 config.data_path = config.root_path
 
-now_date = time.strftime('%Y-%m-%d', time.localtime(time, time()))
+now_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 now_time = time.strftime('%H_%M_%S', time.localtime(time.time()))
 config.log_path = os.path.join(config.exp, now_date, now_time + '_logs')
 config.model_path = os.path.join(config.exp, now_date, now_time + '_models')
@@ -22,6 +23,16 @@ config.dataset.b_g_r_mean = [109, 122, 130]
 config.dataset.b_g_r_std = [76, 72, 74]
 config.dataset.input_resolution = [64, 64]
 add_dataset_params(config, train_data_list, test_data_list)
+
+# test
+config.test = edict()
+config.test.aug_strategy = edict()
+config.test.aug_strategy.normalize = True
+config.test.aug_strategy.flip = False
+config.test.aug_strategy.random_rotate = False
+config.test.aug_strategy.random_crop = False
+config.test.aug_strategy.random_color = False
+config.test.aug_strategy.max_rotate_angle = 20
 
 # train detail
 config.train = edict()
